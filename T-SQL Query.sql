@@ -45,7 +45,7 @@ SELECT
 FROM Entities ent
 FOR JSON PATH
 ------------------------------------------- SELECT NESTED JSON AND DEFAULT DATA ---------------------------------------------
-
+-- ##T-SQL
 CREATE OR ALTER FUNCTION dbo.get_UserAccountTempate()
 RETURNS NVARCHAR(MAX)
 AS
@@ -106,3 +106,35 @@ BEGIN
 )
     RETURN @JsonData;
 END;
+-- C# 
+        -- public async Task<string?> GetUserAccountTempateJson(){
+        --     string? jsonData ="";
+        --     using (SqlConnection connection = new SqlConnection(_connectionString))
+        --     {
+        --         await connection.OpenAsync();
+        --         // Specify the function call in the SQL query
+        --         string sqlQuery = "SELECT dbo.GetUserAccountTempateJson() AS JsonData";
+        --         using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+        --         {
+        --             using (SqlDataReader reader = command.ExecuteReader())
+        --             {
+        --                 if (reader.HasRows)
+        --                 {
+        --                     while (reader.Read())
+        --                     {
+        --                         // Assuming the JSON result is in the "JsonData" column
+        --                          jsonData = reader["JsonData"].ToString();
+        --                         // Process the JSON data as needed
+        --                         // Console.WriteLine(jsonData);
+        --                     }
+        --                 }
+        --                 else
+        --                 {
+        --                     Console.WriteLine("No data returned.");
+        --                 }
+        --             }
+        --         }
+        --     }
+        --     return jsonData;
+        -- }
+--------------------------------------------------------------------------------------------
