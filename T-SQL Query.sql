@@ -44,3 +44,65 @@ SELECT
     )
 FROM Entities ent
 FOR JSON PATH
+------------------------------------------- SELECT NESTED JSON AND DEFAULT DATA ---------------------------------------------
+
+CREATE OR ALTER FUNCTION dbo.get_UserAccountTempate()
+RETURNS NVARCHAR(MAX)
+AS
+BEGIN
+    DECLARE @JsonData NVARCHAR(MAX);
+    SET @JsonData =(
+            SELECT
+                userAccount =(
+                    SELECT
+                         '' AS [name]
+                        ,'' AS [code]
+                        ,'' AS [userName]
+                        ,'' AS [password]
+                        ,'' AS [confirmPassword]
+                        ,'' AS [ruleId]
+                        ,'' AS [branchId]
+                        ,'' AS [gender]
+                        ,'' AS [status]
+                        ,'' AS [departmentId]
+                        FOR JSON PATH
+                ),
+                rules = (
+                        SELECT 
+                            MR.Name AS [ruleName]
+                            ,MR.RuleID AS [ruleId]
+                        FROM [dbo].MARULE MR
+                    FOR JSON PATH
+                ),
+                branches =(
+                    SELECT 
+                        BR.Name AS [branchName]
+                        ,BR.BranchID AS [branchId]
+                    FROM [dbo].BRANCH BR
+                    FOR JSON PATH
+                ),
+                departments =(
+                    SELECT 
+                        DP.Name AS [departmentName]
+                        ,DP.DeparmentID AS [departmentId]
+                    FROM [dbo].DEPMENT DP
+                    FOR JSON PATH
+                ),
+                statuses =(
+                    SELECT 
+                        ES.id AS [Id]
+                        ,ES.value AS [value]
+                    FROM EnumUserStatus ES
+                    FOR JSON PATH
+                ),
+                genders =(
+                    SELECT 
+                        EG.id AS [Id]
+                        ,EG.[value] AS [value]
+                    FROM [dbo].EnumGenders EG
+                    FOR JSON PATH
+                )
+            FOR JSON PATH, ROOT('userTemplate')
+)
+    RETURN @JsonData;
+END;
