@@ -46,6 +46,7 @@ FROM Entities ent
 FOR JSON PATH
 ------------------------------------------- SELECT NESTED JSON AND DEFAULT DATA ---------------------------------------------
 -- ##T-SQL
+GO
 CREATE OR ALTER FUNCTION dbo.get_UserAccountTempate()
 RETURNS NVARCHAR(MAX)
 AS
@@ -137,4 +138,140 @@ END;
         --     }
         --     return jsonData;
         -- }
---------------------------------------------------------------------------------------------
+-------------------------------------------------- Get data with Enum ------------------------------------------
+GO
+ALTER   FUNCTION [dbo].[get_UserAccountsAll]()
+RETURNS TABLE AS 
+RETURN(
+SELECT 
+     UA.Name AS [name]
+    ,UA.Code AS [code]
+    ,MR.Name AS [ruleName]
+    ,BR.Name AS [branchName]
+    ,DP.Name AS [departmentName]
+    ,EG.value AS [genderValue]
+    ,EG.id AS [gender]
+    ,ES.value AS [statusValue]
+    ,ES.id AS [status]
+    FROM UERACC UA
+    INNER JOIN [dbo].[BRANCH] BR ON UA.BranchID = BR.BranchID
+    INNER JOIN [dbo].[DEPMENT] DP ON UA.DepartmentID = DP.DeparmentID
+    INNER JOIN [dbo].[MARULE] MR ON UA.RuleID = MR.RuleID
+    INNER JOIN [dbo].[EnumGenders] EG ON UA.Gender = EG.id
+    INNER JOIN [dbo].[EnumUserStatus] ES ON UA.[Status] = ES.Id
+)
+GO
+--C#
+        -- public async Task<DataTable> GetAllUserAccountsAsync()
+        -- {
+        --     using SqlConnection cn = new SqlConnection(_connectionString);
+        --     await cn.OpenAsync();
+        --     using SqlCommand cmd = cn.CreateCommand();
+        --     // cmd.CommandType = CommandType.Text;
+        --     cmd.CommandText = "SELECT * FROM get_UserAccountsAll()";
+        --     // cmd.Parameters.AddWithValue("@CompID", compID);
+        --     using SqlDataAdapter sda = new(cmd);
+        --     await cmd.ExecuteNonQueryAsync();
+        --     DataTable dt = new DataTable();
+        --     sda.Fill(dt);
+        --     return dt;
+        -- }
+-------------------------------------- select nested json from store procure param---------------------------------
+-- {
+--     "person": {
+--         "name": "John",
+--         "age": 30,
+--         "address": {
+--             "city": "New York",
+--             "zipcode": "10001"
+--         }
+--     }
+-- }
+-----
+GO
+ALTER PROCEDURE GetPersonInfo
+    @JsonParam NVARCHAR(MAX)
+AS
+BEGIN
+    SELECT
+        JSON_VALUE(@JsonParam, '$.person.name') AS Name,
+        JSON_VALUE(@JsonParam, '$.person.age') AS Age,
+        JSON_VALUE(@JsonParam, '$.person.address.city') AS City,
+        JSON_VALUE(@JsonParam, '$.person.address.zipcode') AS Zipcode ;
+END;
+------
+DECLARE @JsonData NVARCHAR(MAX);
+SET @JsonData = '{"person": {"name": "John", "age": 30, "address": {"city": "New York", "zipcode": "10001"}}}';
+
+EXEC GetPersonInfo @JsonParam = @JsonData;
+-------------------------------------------- select nested json from store procure param ----------------------------
+GO
+CREATE OR ALTER PROCEDURE sp_ParseNESTEDJSON
+    @JsonParam NVARCHAR(MAX)
+AS
+BEGIN
+    SELECT 
+     JSON_VALUE(@JsonParam, '$.Header.HCustomerID') AS HCustomerID,
+     JSON_VALUE(@JsonParam, '$.Header.HCompID') AS HCompID,
+     JSON_VALUE(@JsonParam, '$.Header.HCode') AS HCode,
+     JSON_VALUE(@JsonParam, '$.Header.HName1') AS HName1,
+     JSON_VALUE(@JsonParam, '$.Header.HName2') AS HName2,
+     JSON_VALUE(@JsonParam, '$.Header.HPhone') AS HPhone,
+     JSON_VALUE(@JsonParam, '$.Header.HAddress') AS HAddress,
+     JSON_VALUE(@JsonParam, '$.Header.HLocation') AS HLocation,
+     JSON_VALUE(@JsonParam, '$.Header.HCompany') AS HCompany,
+     ---
+     JSON_VALUE(@JsonParam, '$.Header.Detail.CustomerID') AS CustomerID,
+     JSON_VALUE(@JsonParam, '$.Header.Detail.CompID') AS CompID,
+     JSON_VALUE(@JsonParam, '$.Header.Detail.Code') AS Code,
+     JSON_VALUE(@JsonParam, '$.Header.Detail.Name1') AS Name1,
+     JSON_VALUE(@JsonParam, '$.Header.Detail.Name2') AS Name2,
+     JSON_VALUE(@JsonParam, '$.Header.Detail.Phone') AS Phone,
+     JSON_VALUE(@JsonParam, '$.Header.Detail.Address') AS [Address],
+     JSON_VALUE(@JsonParam, '$.Header.Detail.Location') AS [Location],
+     JSON_VALUE(@JsonParam, '$.Header.Detail.Company') AS [Company]
+END
+----
+GO
+DECLARE @JsonData  NVARCHAR(MAX);
+SET @JsonData  = '
+    {
+         "Header": 
+         {
+            "HCustomerID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "HCompID": "ce58dd11-c5b5-4019-9e28-9b5149491fb1",
+            "HCode": "CU001",
+            "HName1": "CU001",
+            "HName2": "CU001",
+            "HPhone": "CU001",
+            "HAddress": "CU001",
+            "HLocation": "CU001",
+            "HCompany": null,
+            "Detail":
+                {
+                    "CustomerID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "CompID": "ce58dd11-c5b5-4019-9e28-9b5149491fb1",
+                    "Code": "CU002",
+                    "Name1": "CU002",
+                    "Name2": "CU002",
+                    "Phone": "CU002",
+                    "Address": "CU002",
+                    "Location": "CU002",
+                    "Company": null
+                },
+                {
+                    "CustomerID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "CompID": "ce58dd11-c5b5-4019-9e28-9b5149491fb1",
+                    "Code": "CU002",
+                    "Name1": "CU002",
+                    "Name2": "CU002",
+                    "Phone": "CU002",
+                    "Address": "CU002",
+                    "Location": "CU002",
+                    "Company": null
+                }
+        }
+    }
+    '
+
+EXEC sp_ParseNESTEDJSON @JsonParam = @JsonData;
