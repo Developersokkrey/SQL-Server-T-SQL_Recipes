@@ -275,3 +275,7 @@ SET @JsonData  = '
     '
 
 EXEC sp_ParseNESTEDJSON @JsonParam = @JsonData;
+-------------------------------------------- SELECT INFORMATION_SCHEMA.COLUMNS --------------------------------------------------------
+SELECT TABLE_NAME, COLUMN_NAME,IS_NULLABLE,DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME='ARDownPayment'
