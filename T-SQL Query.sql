@@ -302,3 +302,32 @@ INSERT INTO YourTable (Column1, Column2) VALUES ('Value1', 'Value2');
 -- Insert values into the second table with a foreign key reference
 INSERT INTO YourTable1 (YourTableID, Column1, Column2)
 VALUES (SCOPE_IDENTITY(), 'Value1', 'Value2');
+----------------------------------------  INSERT INTO [CUSMER]  -----------------------
+    ALTER PROCEDURE sp_ParseJSON
+     @json NVARCHAR(MAX)
+        AS
+        BEGIN
+                INSERT INTO [CUSMER] 
+                SELECT NEWID(),[CompID],[Code],[Name1],[Name2],[Phone],[Address],[Location]
+                FROM OPENJSON(@Json)
+                WITH (
+                    [CompID] NVARCHAR(MAX),
+                    [Code] NVARCHAR(MAX),
+                    [Name1] NVARCHAR(MAX),
+                    [Name2] NVARCHAR(MAX),        
+                    [Phone] NVARCHAR(MAX),        
+                    [Address] NVARCHAR(MAX),        
+                    [Location] NVARCHAR(MAX)      
+                )
+            -- SELECT * FROM test
+            --INSERT INTO [CUSMER] ([CustomerID],[CompID],[Code],[Name1],[Name2],[Phone],[Address],[Location])
+        END
+--------------
+EXEC sp_ParseJSON '[{"CustomerID":"3fa85f64-5717-4562-b3fc-2c963f66afa6","CompID":"ce58dd11-c5b5-4019-9e28-9b5149491fb1","Code":"CU001","Name1":"CU001","Name2":"CU001","Phone":"CU001","Address":"CU001","Location":"CU001","Company":null},{"CustomerID":"3fa85f64-5717-4562-b3fc-2c963f66afa6","CompID":"ce58dd11-c5b5-4019-9e28-9b5149491fb1","Code":"CU002","Name1":"CU002","Name2":"CU002","Phone":"CU002","Address":"CU002","Location":"CU002","Company":null},{"CustomerID":"3fa85f64-5717-4562-b3fc-2c963f66afa6","CompID":"ce58dd11-c5b5-4019-9e28-9b5149491fb1","Code":"CU003","Name1":"CU003","Name2":"CU003","Phone":"CU003","Address":"CU003","Location":"CU003","Company":null},{"CustomerID":"3fa85f64-5717-4562-b3fc-2c963f66afa6","CompID":"ce58dd11-c5b5-4019-9e28-9b5149491fb1","Code":"CU004","Name1":"CU004","Name2":"CU004","Phone":"CU004","Address":"CU004","Location":"CU004","Company":null},{"CustomerID":"3fa85f64-5717-4562-b3fc-2c963f66afa6","CompID":"ce58dd11-c5b5-4019-9e28-9b5149491fb1","Code":"CU005","Name1":"CU005","Name2":"CU005","Phone":"CU005","Address":"CU005","Location":"CU005","Company":null}]'
+
+
+SELECT * FROM COMPAN
+SELECT * FROM CUSMER
+SELECT TABLE_NAME, COLUMN_NAME,IS_NULLABLE,DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME='CUSMER'
