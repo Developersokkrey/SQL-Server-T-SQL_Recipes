@@ -279,3 +279,26 @@ EXEC sp_ParseNESTEDJSON @JsonParam = @JsonData;
 SELECT TABLE_NAME, COLUMN_NAME,IS_NULLABLE,DATA_TYPE
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_NAME='ARDownPayment'
+------------------------------------------ SELECT SCOPE_IDENTITY ------------------------------------
+-- Create tables
+CREATE TABLE YourTable
+(
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    Column1 VARCHAR(255),
+    Column2 VARCHAR(255)
+);
+
+CREATE TABLE YourTable1
+(
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    YourTableID INT FOREIGN KEY REFERENCES YourTable(ID),
+    Column1 VARCHAR(255),
+    Column2 VARCHAR(255)
+);
+
+-- Insert values into the first table
+INSERT INTO YourTable (Column1, Column2) VALUES ('Value1', 'Value2');
+
+-- Insert values into the second table with a foreign key reference
+INSERT INTO YourTable1 (YourTableID, Column1, Column2)
+VALUES (SCOPE_IDENTITY(), 'Value1', 'Value2');
