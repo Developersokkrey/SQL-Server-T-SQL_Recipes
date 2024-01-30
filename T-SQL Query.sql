@@ -331,3 +331,53 @@ SELECT * FROM CUSMER
 SELECT TABLE_NAME, COLUMN_NAME,IS_NULLABLE,DATA_TYPE
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_NAME='CUSMER'
+-------------------------------------------------------------------------------- insert nested json from store procure param
+
+    ALTER PROCEDURE sp_ParseJSON
+     @json NVARCHAR(MAX)
+        AS
+        BEGIN
+                -- INSERT INTO [CUSMER] 
+                -- SELECT
+                -- NEWID()  AS CustomerID,
+                -- JSON_VALUE(@Json, '$.CompID') AS CompID,
+                -- JSON_VALUE(@Json, '$.Code') AS Code,
+                -- JSON_VALUE(@Json, '$.Name1') AS Name1,
+                -- JSON_VALUE(@Json, '$.Name2') AS Name2,
+                -- JSON_VALUE(@Json, '$.Phone') AS Phone,
+                -- JSON_VALUE(@Json, '$.Address') AS [Address],
+                -- JSON_VALUE(@Json, '$.Location') AS [Location]
+                 SELECT
+                    NEWID() AS CustomerID,
+                    JSON_VALUE(value, '$.CompID') AS CompID,
+                    JSON_VALUE(value, '$.Code') AS Code,
+                    JSON_VALUE(value, '$.Name1') AS Name1,
+                    JSON_VALUE(value, '$.Name2') AS Name2,
+                    JSON_VALUE(value, '$.Phone') AS Phone,
+                    JSON_VALUE(value, '$.Address') AS [Address],
+                    JSON_VALUE(value, '$.Location') AS [Location]
+                FROM OPENJSON(@json);
+                -- INSERT INTO [CUSMER] 
+                -- SELECT NEWID(),*
+                -- FROM OPENJSON(@Json)
+                -- WITH (
+                --     [CompID] NVARCHAR(MAX),
+                --     [Code] NVARCHAR(MAX),
+                --     [Name1] NVARCHAR(MAX),
+                --     [Name2] NVARCHAR(MAX),        
+                --     [Phone] NVARCHAR(MAX),        
+                --     [Address] NVARCHAR(MAX),        
+                --     [Location] NVARCHAR(MAX)      
+                -- )
+            -- SELECT * FROM test
+            --INSERT INTO [CUSMER] ([CustomerID],[CompID],[Code],[Name1],[Name2],[Phone],[Address],[Location])
+        END
+--------------
+EXEC sp_ParseJSON '[{"CustomerID":"3fa85f64-5717-4562-b3fc-2c963f66afa6","CompID":"93cfc975-517d-43c8-841b-766ec4d53f79","Code":"CU001","Name1":"CU001","Name2":"CU001","Phone":"CU001","Address":"CU001","Location":"CU001","Company":null},{"CustomerID":"3fa85f64-5717-4562-b3fc-2c963f66afa6","CompID":"93cfc975-517d-43c8-841b-766ec4d53f79","Code":"CU002","Name1":"CU002","Name2":"CU002","Phone":"CU002","Address":"CU002","Location":"CU002","Company":null},{"CustomerID":"3fa85f64-5717-4562-b3fc-2c963f66afa6","CompID":"93cfc975-517d-43c8-841b-766ec4d53f79","Code":"CU003","Name1":"CU003","Name2":"CU003","Phone":"CU003","Address":"CU003","Location":"CU003","Company":null},{"CustomerID":"3fa85f64-5717-4562-b3fc-2c963f66afa6","CompID":"93cfc975-517d-43c8-841b-766ec4d53f79","Code":"CU004","Name1":"CU004","Name2":"CU004","Phone":"CU004","Address":"CU004","Location":"CU004","Company":null},{"CustomerID":"3fa85f64-5717-4562-b3fc-2c963f66afa6","CompID":"93cfc975-517d-43c8-841b-766ec4d53f79","Code":"CU005","Name1":"CU005","Name2":"CU005","Phone":"CU005","Address":"CU005","Location":"CU005","Company":null}]'
+ 
+
+SELECT * FROM COMPAN
+SELECT * FROM CUSMER
+SELECT TABLE_NAME, COLUMN_NAME,IS_NULLABLE,DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME='CUSMER'
